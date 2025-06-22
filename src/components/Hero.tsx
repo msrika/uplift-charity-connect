@@ -1,7 +1,8 @@
 
 import { Button } from '@/components/ui/button';
-import { Heart, ArrowRight } from 'lucide-react';
+import { Heart, ArrowRight, LogIn, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const heroImages = [
   "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1920&q=80",
@@ -23,6 +24,22 @@ const Hero = () => {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-teal-600 text-white py-24 px-4 min-h-screen flex items-center">
+      {/* Navigation */}
+      <div className="absolute top-6 right-6 z-20 flex gap-2">
+        <Link to="/login">
+          <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-purple-600">
+            <LogIn className="w-4 h-4 mr-1" />
+            Login
+          </Button>
+        </Link>
+        <Link to="/signup">
+          <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-purple-600">
+            <User className="w-4 h-4 mr-1" />
+            Sign Up
+          </Button>
+        </Link>
+      </div>
+
       {/* Background Image Carousel with Sliding Effect */}
       <div className="absolute inset-0 z-0">
         <div 
@@ -61,13 +78,17 @@ const Hero = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in delay-300">
-          <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-purple-900 font-semibold px-8 py-4 text-lg group transform hover:scale-105 transition-all duration-200">
-            Donate Now
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
-          <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4 text-lg transform hover:scale-105 transition-all duration-200">
-            Learn More
-          </Button>
+          <Link to="/donate">
+            <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-purple-900 font-semibold px-8 py-4 text-lg group transform hover:scale-105 transition-all duration-200">
+              Donate Now
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
+          <Link to="/history">
+            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4 text-lg transform hover:scale-105 transition-all duration-200">
+              View History
+            </Button>
+          </Link>
         </div>
       </div>
 
