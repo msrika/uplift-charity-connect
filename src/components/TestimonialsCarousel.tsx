@@ -5,32 +5,46 @@ import { Star, Quote } from 'lucide-react';
 
 const testimonials = [
   {
-    name: "Sarah Johnson",
-    location: "California, USA",
-    text: "Thanks to this organization, my village now has clean water. My children no longer get sick from contaminated water.",
+    name: "Emma Wilson",
+    location: "Toronto, Canada",
+    text: "This organization transformed our entire community. The solar panels they installed now power our school and clinic.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?auto=format&fit=crop&w=150&q=80"
   },
   {
-    name: "Marcus Chen",
-    location: "London, UK",
-    text: "I've been donating for 3 years and seeing the impact reports gives me so much joy. Real transparency!",
+    name: "James Thompson",
+    location: "Sydney, Australia", 
+    text: "I've never seen such transparency in charitable giving. Every update shows exactly where my money went and who it helped.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
   },
   {
-    name: "Amara Okafor",
-    location: "Lagos, Nigeria",
-    text: "The new school in our community has changed everything. My daughter now has a bright future ahead.",
+    name: "Fatima Al-Rashid",
+    location: "Dubai, UAE",
+    text: "The medical supplies reached our village just in time. Three children's lives were saved because of your donors.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=150&q=80"
   },
   {
-    name: "David Rodriguez",
-    location: "Barcelona, Spain",
-    text: "Amazing organization! Every dollar goes where it should. I can see the direct impact of my donations.",
+    name: "Carlos Mendez",
+    location: "Mexico City, Mexico",
+    text: "From clean water wells to educational programs, this charity delivers real results. I'm proud to be a monthly donor.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80"
+  },
+  {
+    name: "Priya Sharma",
+    location: "Mumbai, India",
+    text: "The vocational training program changed my life completely. Now I run my own tailoring business and support my family.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80"
+  },
+  {
+    name: "Michael O'Connor",
+    location: "Dublin, Ireland",
+    text: "Seeing the before and after photos of the communities they help is incredible. Real change, real impact, real hope.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
   }
 ];
 
