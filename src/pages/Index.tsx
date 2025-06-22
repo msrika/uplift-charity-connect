@@ -3,6 +3,7 @@ import Hero from '@/components/Hero';
 import FeaturedCauses from '@/components/FeaturedCauses';
 import ImpactStats from '@/components/ImpactStats';
 import HowItHelps from '@/components/HowItHelps';
+import TestimonialsCarousel from '@/components/TestimonialsCarousel';
 import Footer from '@/components/Footer';
 
 const Index = () => {
@@ -12,6 +13,7 @@ const Index = () => {
       <FeaturedCauses />
       <ImpactStats />
       <HowItHelps />
+      <TestimonialsCarousel />
       <Footer />
     </div>
   );
