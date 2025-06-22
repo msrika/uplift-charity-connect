@@ -1,7 +1,6 @@
 
 import { Button } from '@/components/ui/button';
 import { Heart, ArrowRight } from 'lucide-react';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useEffect, useState } from 'react';
 
 const heroImages = [
@@ -24,23 +23,23 @@ const Hero = () => {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-teal-600 text-white py-24 px-4 min-h-screen flex items-center">
-      {/* Background Image Carousel */}
+      {/* Background Image Carousel with Sliding Effect */}
       <div className="absolute inset-0 z-0">
-        {heroImages.map((image, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentIndex ? 'opacity-30' : 'opacity-0'
-            }`}
-          >
-            <img
-              src={image}
-              alt={`Hero background ${index + 1}`}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        ))}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-teal-600/80"></div>
+        <div 
+          className="flex transition-transform duration-1000 ease-in-out h-full"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {heroImages.map((image, index) => (
+            <div key={index} className="w-full h-full flex-shrink-0 relative">
+              <img
+                src={image}
+                alt={`Hero background ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/80 to-teal-600/80"></div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Content */}
