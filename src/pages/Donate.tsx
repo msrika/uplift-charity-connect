@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Heart, Users, User } from 'lucide-react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import Footer from '@/components/Footer';
@@ -15,42 +16,82 @@ const donationCategories = [
     title: 'Food Donations',
     description: 'Help feed families in need with nutritious meals',
     icon: '🍽️',
-    color: 'from-orange-500 to-red-500'
+    color: 'from-orange-500 to-red-500',
+    subcategories: [
+      'Rice & Grains',
+      'Vegetables & Fruits',
+      'Canned Foods',
+      'Baby Food',
+      'Dairy Products',
+      'Meat & Protein'
+    ]
   },
   {
     id: 'clothes',
     title: 'Clothing Donations',
     description: 'Provide warm clothing and essentials to those in need',
     icon: '👕',
-    color: 'from-blue-500 to-cyan-500'
+    color: 'from-blue-500 to-cyan-500',
+    subcategories: [
+      'Winter Clothes',
+      'Summer Clothes',
+      'Children Clothing',
+      'Shoes & Footwear',
+      'Blankets',
+      'Undergarments'
+    ]
   },
   {
     id: 'elderly',
     title: 'Support for Elderly',
     description: 'Care and support for our senior community members',
     icon: '👴',
-    color: 'from-purple-500 to-pink-500'
+    color: 'from-purple-500 to-pink-500',
+    subcategories: [
+      'Medicine & Healthcare',
+      'Medical Equipment',
+      'Mobility Aids',
+      'Personal Care Items',
+      'Nutrition Supplements',
+      'Comfort Items'
+    ]
   },
   {
     id: 'children',
     title: 'Children Support',
     description: 'Education, healthcare, and support for children',
     icon: '👶',
-    color: 'from-green-500 to-teal-500'
+    color: 'from-green-500 to-teal-500',
+    subcategories: [
+      'Education & School Supplies',
+      'Sports Equipment',
+      'Toys & Games',
+      'Books & Learning Materials',
+      'Art & Craft Supplies',
+      'Musical Instruments'
+    ]
   }
 ];
 
 const Donate = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [amount, setAmount] = useState('');
   const [showQR, setShowQR] = useState(false);
   const [donationType, setDonationType] = useState('monetary');
 
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    setSelectedSubcategory(''); // Reset subcategory when category changes
+  };
+
   const handleDonate = () => {
-    if (selectedCategory && (amount || donationType === 'items')) {
+    if (selectedCategory && selectedSubcategory && (amount || donationType === 'items')) {
       setShowQR(true);
     }
   };
+
+  const selectedCategoryData = donationCategories.find(cat => cat.id === selectedCategory);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50">
@@ -76,7 +117,7 @@ const Donate = () => {
                   className={`cursor-pointer transition-all duration-300 hover:shadow-xl transform hover:-translate-y-2 ${
                     selectedCategory === category.id ? 'ring-4 ring-purple-500 scale-105' : ''
                   }`}
-                  onClick={() => setSelectedCategory(category.id)}
+                  onClick={() => handleCategorySelect(category.id)}
                 >
                   <CardHeader className="text-center">
                     <div className={`w-20 h-20 mx-auto rounded-full bg-gradient-to-br ${category.color} flex items-center justify-center text-3xl mb-4`}>
@@ -98,6 +139,25 @@ const Donate = () => {
                   <CardTitle className="text-2xl text-center">Complete Your Donation</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Subcategory Selection */}
+                  <div>
+                    <Label className="text-base font-semibold">
+                      Select {selectedCategoryData?.title} Type
+                    </Label>
+                    <Select value={selectedSubcategory} onValueChange={setSelectedSubcategory}>
+                      <SelectTrigger className="mt-2">
+                        <SelectValue placeholder={`Choose ${selectedCategoryData?.title.toLowerCase()} type`} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {selectedCategoryData?.subcategories.map((subcategory) => (
+                          <SelectItem key={subcategory} value={subcategory}>
+                            {subcategory}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <div>
                     <Label className="text-base font-semibold">Donation Type</Label>
                     <RadioGroup value={donationType} onValueChange={setDonationType} className="mt-2">
@@ -150,7 +210,7 @@ const Donate = () => {
                   <Button 
                     onClick={handleDonate}
                     className="w-full bg-gradient-to-r from-purple-600 to-teal-600 hover:from-purple-700 hover:to-teal-700 text-lg py-3"
-                    disabled={!selectedCategory || (donationType === 'monetary' && !amount)}
+                    disabled={!selectedCategory || !selectedSubcategory || (donationType === 'monetary' && !amount)}
                   >
                     Generate Donation QR Code
                   </Button>
@@ -160,10 +220,13 @@ const Donate = () => {
           </>
         ) : (
           <QRCodeGenerator 
-            category={selectedCategory}
+            category={`${selectedCategory} - ${selectedSubcategory}`}
             amount={donationType === 'monetary' ? amount : 'Items'}
             type={donationType}
-            onBack={() => setShowQR(false)}
+            onBack={() => {
+              setShowQR(false);
+              setSelectedSubcategory('');
+            }}
           />
         )}
       </div>
