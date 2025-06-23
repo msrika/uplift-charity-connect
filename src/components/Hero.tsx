@@ -23,17 +23,17 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-r from-purple-600 to-teal-600 text-white py-24 px-4 min-h-screen flex items-center">
+    <section className="relative overflow-hidden text-white py-24 px-4 min-h-screen flex items-center">
       {/* Navigation */}
       <div className="absolute top-6 right-6 z-20 flex gap-2">
         <Link to="/login">
-          <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-purple-600">
+          <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-gray-900">
             <LogIn className="w-4 h-4 mr-1" />
             Login
           </Button>
         </Link>
         <Link to="/signup">
-          <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-purple-600">
+          <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-gray-900">
             <User className="w-4 h-4 mr-1" />
             Sign Up
           </Button>
@@ -53,7 +53,7 @@ const Hero = () => {
                 alt={`Hero background ${index + 1}`}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/40 to-teal-600/40"></div>
+              <div className="absolute inset-0 bg-black/40"></div>
             </div>
           ))}
         </div>
@@ -72,20 +72,20 @@ const Hero = () => {
           <span className="block text-yellow-300 animate-bounce">Change Lives</span>
         </h1>
         
-        <p className="text-xl md:text-2xl mb-8 text-purple-100 max-w-2xl mx-auto animate-fade-in delay-150">
+        <p className="text-xl md:text-2xl mb-8 text-gray-100 max-w-2xl mx-auto animate-fade-in delay-150">
           Your donation provides clean water, education, and hope to communities around the world. 
           Join thousands of donors making a real difference today.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in delay-300">
           <Link to="/donate">
-            <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-purple-900 font-semibold px-8 py-4 text-lg group transform hover:scale-105 transition-all duration-200">
+            <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold px-8 py-4 text-lg group transform hover:scale-105 transition-all duration-200">
               Donate Now
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
           <Link to="/history">
-            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4 text-lg transform hover:scale-105 transition-all duration-200">
+            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 text-lg transform hover:scale-105 transition-all duration-200">
               View History
             </Button>
           </Link>
