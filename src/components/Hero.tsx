@@ -53,7 +53,7 @@ const Hero = () => {
                 alt={`Hero background ${index + 1}`}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/80 to-teal-600/80"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/40 to-teal-600/40"></div>
             </div>
           ))}
         </div>
