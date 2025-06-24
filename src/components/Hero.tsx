@@ -1,8 +1,9 @@
 
 import { Button } from '@/components/ui/button';
-import { Heart, ArrowRight, LogIn, User } from 'lucide-react';
+import { Heart, ArrowRight, LogIn, User, LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 const heroImages = [
   "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1920&q=80",
@@ -13,6 +14,7 @@ const heroImages = [
 
 const Hero = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -26,18 +28,37 @@ const Hero = () => {
     <section className="relative overflow-hidden text-white py-24 px-4 min-h-screen flex items-center">
       {/* Navigation */}
       <div className="absolute top-6 right-6 z-20 flex gap-2">
-        <Link to="/login">
-          <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-gray-900">
-            <LogIn className="w-4 h-4 mr-1" />
-            Login
-          </Button>
-        </Link>
-        <Link to="/signup">
-          <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-gray-900">
-            <User className="w-4 h-4 mr-1" />
-            Sign Up
-          </Button>
-        </Link>
+        {user ? (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-white bg-black/20 px-3 py-1 rounded-full">
+              Welcome, {user.user_metadata?.first_name || user.email}!
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="border-white text-white hover:bg-white hover:text-gray-900"
+              onClick={signOut}
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Link to="/login">
+              <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-gray-900">
+                <LogIn className="w-4 h-4 mr-1" />
+                Login
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-gray-900">
+                <User className="w-4 h-4 mr-1" />
+                Sign Up
+              </Button>
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Background Image Carousel with Sliding Effect */}

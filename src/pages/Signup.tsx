@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Heart, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,8 @@ const Signup = () => {
     password: '',
     confirmPassword: ''
   });
+  const { signUp, loading } = useAuth();
+  const navigate = useNavigate();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -23,14 +26,18 @@ const Signup = () => {
     });
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-    // Signup logic will be implemented here
-    console.log('Signup attempt:', formData);
+    try {
+      await signUp(formData.email, formData.password, formData.firstName, formData.lastName);
+      navigate('/login'); // Redirect to login after successful signup
+    } catch (error) {
+      // Error is handled in the useAuth hook
+    }
   };
 
   return (
@@ -55,6 +62,7 @@ const Signup = () => {
                   value={formData.firstName}
                   onChange={handleInputChange}
                   required
+                  disabled={loading}
                 />
               </div>
               <div className="space-y-2">
@@ -66,6 +74,7 @@ const Signup = () => {
                   value={formData.lastName}
                   onChange={handleInputChange}
                   required
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -79,6 +88,7 @@ const Signup = () => {
                 value={formData.email}
                 onChange={handleInputChange}
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -91,6 +101,7 @@ const Signup = () => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -103,11 +114,16 @@ const Signup = () => {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
+                disabled={loading}
               />
             </div>
-            <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-teal-600 hover:from-purple-700 hover:to-teal-700">
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-to-r from-purple-600 to-teal-600 hover:from-purple-700 hover:to-teal-700"
+              disabled={loading}
+            >
               <User className="w-4 h-4 mr-2" />
-              Create Account
+              {loading ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>
           
