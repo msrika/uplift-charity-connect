@@ -2,6 +2,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { QrCode } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from 'react';
 
 interface QRCodeGeneratorProps {
   category: string;
@@ -11,8 +15,58 @@ interface QRCodeGeneratorProps {
 }
 
 const QRCodeGenerator = ({ category, amount, type, onBack }: QRCodeGeneratorProps) => {
-  const donationId = `DON-${Date.now()}-${category.toUpperCase()}`;
+  const [donationId, setDonationId] = useState<string>('');
+  const { user } = useAuth();
+  const { toast } = useToast();
+
   const qrData = `DONATION:${donationId}:${category}:${amount}:${type}`;
+
+  useEffect(() => {
+    const saveDonation = async () => {
+      if (!user) {
+        toast({
+          title: "Authentication required",
+          description: "Please log in to make a donation.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('donations')
+          .insert({
+            user_id: user.id,
+            category,
+            amount: type === 'monetary' ? parseFloat(amount) : null,
+            donation_type: type,
+            description: type === 'items' ? `Item donation: ${category}` : null,
+            qr_code_data: qrData,
+            status: 'pending'
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        setDonationId(data.id);
+        
+        toast({
+          title: "Donation recorded!",
+          description: "Your donation has been saved to your history.",
+        });
+      } catch (error: any) {
+        console.error('Error saving donation:', error);
+        toast({
+          title: "Error saving donation",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    };
+
+    saveDonation();
+  }, [user, category, amount, type, toast]);
 
   return (
     <div className="max-w-md mx-auto">
@@ -32,7 +86,7 @@ const QRCodeGenerator = ({ category, amount, type, onBack }: QRCodeGeneratorProp
           </div>
 
           <div className="space-y-2">
-            <p><strong>Donation ID:</strong> {donationId}</p>
+            <p><strong>Donation ID:</strong> {donationId || 'Generating...'}</p>
             <p><strong>Category:</strong> {category}</p>
             <p><strong>Amount:</strong> {type === 'monetary' ? `$${amount}` : 'Items'}</p>
             <p><strong>Type:</strong> {type}</p>
