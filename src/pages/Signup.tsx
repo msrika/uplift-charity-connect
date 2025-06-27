@@ -16,6 +16,7 @@ const Signup = () => {
     password: '',
     confirmPassword: ''
   });
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const { signUp, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -28,17 +29,57 @@ const Signup = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
     }
+    
+    if (formData.password.length < 6) {
+      alert('Password must be at least 6 characters long');
+      return;
+    }
+    
     try {
       await signUp(formData.email, formData.password, formData.firstName, formData.lastName);
-      navigate('/login'); // Redirect to login after successful signup
+      setIsSubmitted(true);
     } catch (error) {
       // Error is handled in the useAuth hook
+      console.error('Signup error:', error);
     }
   };
+
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 mx-auto bg-gradient-to-r from-purple-600 to-teal-600 rounded-full flex items-center justify-center mb-4">
+              <Heart className="w-8 h-8 text-white" fill="currentColor" />
+            </div>
+            <CardTitle className="text-2xl">Check Your Email</CardTitle>
+            <p className="text-gray-600">We've sent you a confirmation link</p>
+          </CardHeader>
+          <CardContent className="text-center">
+            <p className="text-gray-700 mb-6">
+              Please check your email and click the confirmation link to activate your account. 
+              Once confirmed, you can sign in.
+            </p>
+            <div className="space-y-4">
+              <Link to="/login">
+                <Button className="w-full bg-gradient-to-r from-purple-600 to-teal-600 hover:from-purple-700 hover:to-teal-700">
+                  Go to Sign In
+                </Button>
+              </Link>
+              <Link to="/" className="block text-gray-500 hover:text-gray-700 text-sm">
+                ← Back to Home
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50 flex items-center justify-center px-4">
@@ -97,11 +138,12 @@ const Signup = () => {
                 id="password"
                 name="password"
                 type="password"
-                placeholder="Create a password"
+                placeholder="Create a password (min 6 characters)"
                 value={formData.password}
                 onChange={handleInputChange}
                 required
                 disabled={loading}
+                minLength={6}
               />
             </div>
             <div className="space-y-2">

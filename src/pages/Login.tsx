@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, LogIn } from 'lucide-react';
+import { Heart, LogIn, Mail } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -21,6 +21,7 @@ const Login = () => {
       navigate('/'); // Redirect to home after successful login
     } catch (error) {
       // Error is handled in the useAuth hook
+      console.error('Login error:', error);
     }
   };
 
@@ -69,6 +70,16 @@ const Login = () => {
               {loading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
+          
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+            <div className="flex items-start space-x-2">
+              <Mail className="w-4 h-4 text-blue-600 mt-0.5" />
+              <div className="text-sm text-blue-800">
+                <p className="font-medium">Email confirmation required</p>
+                <p>Make sure to check your email and click the confirmation link before signing in.</p>
+              </div>
+            </div>
+          </div>
           
           <div className="mt-6 text-center">
             <p className="text-gray-600">
