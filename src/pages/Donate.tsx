@@ -77,6 +77,9 @@ const Donate = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [amount, setAmount] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [peopleCount, setPeopleCount] = useState('');
+  const [itemQuantity, setItemQuantity] = useState('');
   const [showQR, setShowQR] = useState(false);
   const [donationType, setDonationType] = useState('monetary');
 
@@ -86,7 +89,11 @@ const Donate = () => {
   };
 
   const handleDonate = () => {
-    if (selectedCategory && selectedSubcategory && (amount || donationType === 'items')) {
+    const isMonetary = donationType === 'monetary';
+    const isValid = selectedCategory && selectedSubcategory && phoneNumber && 
+      (isMonetary ? amount : (itemQuantity && peopleCount));
+    
+    if (isValid) {
       setShowQR(true);
     }
   };
@@ -172,6 +179,19 @@ const Donate = () => {
                     </RadioGroup>
                   </div>
 
+                  {/* Phone Number */}
+                  <div>
+                    <Label htmlFor="phone" className="text-base font-semibold">Contact Phone Number *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="Enter your phone number"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="mt-2"
+                    />
+                  </div>
+
                   {donationType === 'monetary' && (
                     <div>
                       <Label htmlFor="amount" className="text-base font-semibold">Donation Amount ($)</Label>
@@ -199,18 +219,49 @@ const Donate = () => {
                   )}
 
                   {donationType === 'items' && (
-                    <div className="bg-yellow-50 p-4 rounded-lg">
-                      <p className="text-yellow-800">
-                        For item donations, please contact our team to arrange pickup or drop-off.
-                        A QR code will be generated for tracking your donation.
-                      </p>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="quantity" className="text-base font-semibold">Quantity/Amount of Items</Label>
+                        <Input
+                          id="quantity"
+                          type="text"
+                          placeholder="e.g., 10 kg rice, 5 boxes, etc."
+                          value={itemQuantity}
+                          onChange={(e) => setItemQuantity(e.target.value)}
+                          className="mt-2"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="people" className="text-base font-semibold">How many people will this feed?</Label>
+                        <Input
+                          id="people"
+                          type="number"
+                          placeholder="Number of people"
+                          value={peopleCount}
+                          onChange={(e) => setPeopleCount(e.target.value)}
+                          className="mt-2"
+                        />
+                      </div>
+
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <p className="text-blue-800 font-medium mb-2">📞 Contact Information:</p>
+                        <p className="text-blue-700">
+                          For item donations, our advisor will contact you at the provided phone number to arrange pickup or drop-off.
+                        </p>
+                        <p className="text-blue-700 mt-1">
+                          <strong>Advisor Hotline:</strong> +1 (555) 123-HELP
+                        </p>
+                      </div>
                     </div>
                   )}
 
                   <Button 
                     onClick={handleDonate}
                     className="w-full bg-gradient-to-r from-purple-600 to-teal-600 hover:from-purple-700 hover:to-teal-700 text-lg py-3"
-                    disabled={!selectedCategory || !selectedSubcategory || (donationType === 'monetary' && !amount)}
+                    disabled={!selectedCategory || !selectedSubcategory || !phoneNumber || 
+                      (donationType === 'monetary' && !amount) || 
+                      (donationType === 'items' && (!itemQuantity || !peopleCount))}
                   >
                     Generate Donation QR Code
                   </Button>
@@ -221,8 +272,10 @@ const Donate = () => {
         ) : (
           <QRCodeGenerator 
             category={`${selectedCategory} - ${selectedSubcategory}`}
-            amount={donationType === 'monetary' ? amount : 'Items'}
+            amount={donationType === 'monetary' ? amount : itemQuantity}
+            peopleCount={donationType === 'items' ? peopleCount : undefined}
             type={donationType}
+            phoneNumber={phoneNumber}
             onBack={() => {
               setShowQR(false);
               setSelectedSubcategory('');
