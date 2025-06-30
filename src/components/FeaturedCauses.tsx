@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,17 +13,17 @@ const causesData = [
     raised: 75000,
     goal: 100000,
     icon: Droplets,
-    image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1541840031508-326b77c9a17e?auto=format&fit=crop&w=400&q=80",
     affectedAreas: [
       "Sub-Saharan Africa", "Rural Ethiopia", "Northern Kenya", "Southern Sudan", 
       "Eastern Chad", "Western Niger", "Rural Mali", "Northern Burkina Faso"
     ],
     peopleAffected: 2100000,
-    mainImage: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?auto=format&fit=crop&w=800&q=80",
+    mainImage: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=800&q=80",
     problemImages: [
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1542810634-71277d95dcbb?auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=400&q=80"
+      "https://images.unsplash.com/photo-1541840031508-326b77c9a17e?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=400&q=80",
+      "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?auto=format&fit=crop&w=400&q=80"
     ],
     urgentNeeds: [
       "Water pumps and filtration systems",
@@ -48,7 +47,7 @@ const causesData = [
     raised: 45000,
     goal: 80000,
     icon: GraduationCap,
-    image: "https://images.unsplash.com/photo-1721322800607-8c38375eef04?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1497486751825-1233686d5d80?auto=format&fit=crop&w=400&q=80",
     affectedAreas: [
       "Rural India", "Bangladesh Villages", "Remote Philippines", "Mountain Nepal", 
       "Rural Cambodia", "Remote Myanmar", "Eastern Afghanistan", "Southern Pakistan"
@@ -82,7 +81,7 @@ const causesData = [
     raised: 32000,
     goal: 60000,
     icon: Heart,
-    image: "https://images.unsplash.com/photo-1493962853295-0fd70327578a?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&w=400&q=80",
     affectedAreas: [
       "Amazon Rainforest", "Rural Brazil", "Remote Peru", "Highland Bolivia", 
       "Rural Colombia", "Isolated Venezuela", "Remote Ecuador", "Mountain Guatemala"
@@ -90,8 +89,8 @@ const causesData = [
     peopleAffected: 650000,
     mainImage: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?auto=format&fit=crop&w=800&q=80",
     problemImages: [
+      "https://images.unsplash.com/photo-1559757175-0eb30cd8c063?auto=format&fit=crop&w=400&q=80",
       "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=400&q=80",
-      "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=400&q=80",
       "https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?auto=format&fit=crop&w=400&q=80"
     ],
     urgentNeeds: [
