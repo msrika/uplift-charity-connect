@@ -4,13 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, LogIn, Mail } from 'lucide-react';
+import { Heart, LogIn, Mail, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showDemo, setShowDemo] = useState(false);
   const { signIn, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -23,6 +24,10 @@ const Login = () => {
       // Error is handled in the useAuth hook
       console.error('Login error:', error);
     }
+  };
+
+  const handleDemoMode = () => {
+    navigate('/donate');
   };
 
   return (
@@ -77,6 +82,24 @@ const Login = () => {
               <div className="text-sm text-blue-800">
                 <p className="font-medium">Email confirmation required</p>
                 <p>Make sure to check your email and click the confirmation link before signing in.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-orange-50 rounded-lg border border-orange-200">
+            <div className="flex items-start space-x-2">
+              <AlertCircle className="w-4 h-4 text-orange-600 mt-0.5" />
+              <div className="text-sm text-orange-800">
+                <p className="font-medium">Having trouble logging in?</p>
+                <p className="mb-2">You can still use the donation features without an account!</p>
+                <Button 
+                  onClick={handleDemoMode}
+                  variant="outline"
+                  size="sm"
+                  className="border-orange-300 text-orange-800 hover:bg-orange-100"
+                >
+                  Try Demo Mode
+                </Button>
               </div>
             </div>
           </div>

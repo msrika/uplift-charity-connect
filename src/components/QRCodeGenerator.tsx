@@ -5,7 +5,7 @@ import { Phone, Download, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 
 interface QRCodeGeneratorProps {
@@ -20,58 +20,70 @@ interface QRCodeGeneratorProps {
 const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onBack }: QRCodeGeneratorProps) => {
   const [donationId, setDonationId] = useState<string>('');
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Generate a unique donation ID even without authentication for demo purposes
+  const generateDonationId = () => {
+    return 'DONATION-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  };
 
   const qrData = `DONATION:${donationId}:${category}:${amount}:${type}:${phoneNumber}${peopleCount ? `:${peopleCount}people` : ''}`;
 
   useEffect(() => {
     const saveDonation = async () => {
-      if (!user) {
+      setIsGenerating(true);
+      
+      // Generate donation ID first
+      const newDonationId = generateDonationId();
+      setDonationId(newDonationId);
+
+      // If user is authenticated, save to database
+      if (user) {
+        try {
+          const donationData = {
+            user_id: user.id,
+            category,
+            amount: type === 'monetary' ? parseFloat(amount) : null,
+            donation_type: type,
+            description: type === 'items' 
+              ? `Item donation: ${category} - ${amount}${peopleCount ? ` (feeds ${peopleCount} people)` : ''} - Contact: ${phoneNumber}` 
+              : `Monetary donation: $${amount} - Contact: ${phoneNumber}`,
+            qr_code_data: '',
+            status: 'pending'
+          };
+
+          const { data, error } = await supabase
+            .from('donations')
+            .insert(donationData)
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          setDonationId(data.id);
+          
+          toast({
+            title: "Donation recorded!",
+            description: "Your donation has been saved to your history.",
+          });
+        } catch (error: any) {
+          console.error('Error saving donation:', error);
+          toast({
+            title: "Donation created",
+            description: "QR code generated successfully. Sign in to save donation history.",
+            variant: "default",
+          });
+        }
+      } else {
         toast({
-          title: "Authentication required",
-          description: "Please log in to make a donation.",
-          variant: "destructive",
+          title: "QR Code Generated",
+          description: "Your donation QR code is ready. Sign in to save donation history.",
         });
-        return;
       }
-
-      try {
-        const donationData = {
-          user_id: user.id,
-          category,
-          amount: type === 'monetary' ? parseFloat(amount) : null,
-          donation_type: type,
-          description: type === 'items' 
-            ? `Item donation: ${category} - ${amount}${peopleCount ? ` (feeds ${peopleCount} people)` : ''} - Contact: ${phoneNumber}` 
-            : `Monetary donation: $${amount} - Contact: ${phoneNumber}`,
-          qr_code_data: '', // Will be updated with actual QR data after ID is generated
-          status: 'pending'
-        };
-
-        const { data, error } = await supabase
-          .from('donations')
-          .insert(donationData)
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        setDonationId(data.id);
-        
-        toast({
-          title: "Donation recorded!",
-          description: "Your donation has been saved to your history.",
-        });
-      } catch (error: any) {
-        console.error('Error saving donation:', error);
-        toast({
-          title: "Error saving donation",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+      
+      setIsGenerating(false);
     };
 
     saveDonation();
@@ -92,18 +104,25 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
         });
         setQrCodeDataUrl(dataUrl);
 
-        // Update the donation record with the QR code data
-        await supabase
-          .from('donations')
-          .update({ qr_code_data: qrData })
-          .eq('id', donationId);
+        // Update the donation record with the QR code data if user is authenticated
+        if (user) {
+          await supabase
+            .from('donations')
+            .update({ qr_code_data: qrData })
+            .eq('id', donationId);
+        }
       } catch (error) {
         console.error('Error generating QR code:', error);
+        toast({
+          title: "QR Code Error",
+          description: "Failed to generate QR code. Please try again.",
+          variant: "destructive",
+        });
       }
     };
 
     generateQRCode();
-  }, [donationId, qrData]);
+  }, [donationId, qrData, user]);
 
   const downloadQRCode = () => {
     if (!qrCodeDataUrl) return;
@@ -112,6 +131,11 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
     link.download = `donation-qr-${donationId}.png`;
     link.href = qrCodeDataUrl;
     link.click();
+
+    toast({
+      title: "QR Code Downloaded",
+      description: "Your donation QR code has been downloaded successfully.",
+    });
   };
 
   return (
@@ -129,7 +153,9 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
             ) : (
               <div className="text-gray-400">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
-                <p className="text-sm">Generating QR Code...</p>
+                <p className="text-sm">
+                  {isGenerating ? 'Generating QR Code...' : 'Loading...'}
+                </p>
               </div>
             )}
           </div>
@@ -142,6 +168,15 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
             <p><strong>Type:</strong> {type}</p>
             <p><strong>Contact:</strong> {phoneNumber}</p>
           </div>
+
+          {!user && (
+            <div className="bg-blue-50 p-4 rounded-lg text-left">
+              <p className="text-blue-800 font-medium mb-2">💡 Sign in to save your donation history</p>
+              <p className="text-blue-700 text-sm">
+                Your QR code is ready to use, but signing in will save this donation to your history for future reference.
+              </p>
+            </div>
+          )}
 
           {type === 'items' && (
             <div className="bg-blue-50 p-4 rounded-lg text-left">
