@@ -29,7 +29,26 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
     return 'DONATION-' + Math.random().toString(36).substr(2, 9).toUpperCase();
   };
 
-  const qrData = `DONATION:${donationId}:${category}:${amount}:${type}:${phoneNumber}${peopleCount ? `:${peopleCount}people` : ''}`;
+  // Generate payment QR code data based on type
+  const generatePaymentQRData = (donationId: string) => {
+    if (type === 'monetary') {
+      // Parse amount to get numeric value and currency
+      const numericAmount = amount.replace(/[^\d.]/g, '');
+      const currency = amount.includes('₹') ? 'INR' : 'USD';
+      
+      if (currency === 'INR') {
+        // UPI payment format for Indian Rupees
+        return `upi://pay?pa=${phoneNumber}@paytm&pn=Charity Donation&am=${numericAmount}&cu=INR&tn=Donation for ${category} - ${donationId}`;
+      } else {
+        // For USD/other currencies, use a generic payment link format
+        // This could be adapted for PayPal, Venmo, etc.
+        return `https://pay.example.com/send?to=${phoneNumber}&amount=${numericAmount}&currency=${currency}&note=Donation for ${category} - ${donationId}`;
+      }
+    } else {
+      // For item donations, create a contact/info QR code
+      return `CONTACT:${phoneNumber}\nDONATION:${donationId}\nCATEGORY:${category}\nITEMS:${amount}\nFEEDS:${peopleCount} people\nNOTE:Please contact for item donation pickup/delivery`;
+    }
+  };
 
   useEffect(() => {
     const saveDonation = async () => {
@@ -45,11 +64,11 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
           const donationData = {
             user_id: user.id,
             category,
-            amount: type === 'monetary' ? parseFloat(amount) : null,
+            amount: type === 'monetary' ? parseFloat(amount.replace(/[^\d.]/g, '')) : null,
             donation_type: type,
             description: type === 'items' 
               ? `Item donation: ${category} - ${amount}${peopleCount ? ` (feeds ${peopleCount} people)` : ''} - Contact: ${phoneNumber}` 
-              : `Monetary donation: $${amount} - Contact: ${phoneNumber}`,
+              : `Monetary donation: ${amount} - Contact: ${phoneNumber}`,
             qr_code_data: '',
             status: 'pending'
           };
@@ -94,7 +113,9 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
       if (!donationId) return;
       
       try {
-        const dataUrl = await QRCode.toDataURL(qrData, {
+        const paymentQRData = generatePaymentQRData(donationId);
+        
+        const dataUrl = await QRCode.toDataURL(paymentQRData, {
           width: 256,
           margin: 2,
           color: {
@@ -108,7 +129,7 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
         if (user) {
           await supabase
             .from('donations')
-            .update({ qr_code_data: qrData })
+            .update({ qr_code_data: paymentQRData })
             .eq('id', donationId);
         }
       } catch (error) {
@@ -122,7 +143,7 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
     };
 
     generateQRCode();
-  }, [donationId, qrData, user]);
+  }, [donationId, user]);
 
   const downloadQRCode = () => {
     if (!qrCodeDataUrl) return;
@@ -142,19 +163,24 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
     <div className="max-w-md mx-auto">
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Donation QR Code</CardTitle>
-          <p className="text-gray-600">Scan this code to complete your donation</p>
+          <CardTitle className="text-2xl">Payment QR Code</CardTitle>
+          <p className="text-gray-600">
+            {type === 'monetary' 
+              ? 'Scan this code to send money directly' 
+              : 'Scan to get contact information for donation pickup'
+            }
+          </p>
         </CardHeader>
         <CardContent className="text-center space-y-6">
           {/* QR Code */}
           <div className="w-64 h-64 mx-auto bg-white border-2 border-gray-200 flex items-center justify-center rounded-lg p-4">
             {qrCodeDataUrl ? (
-              <img src={qrCodeDataUrl} alt="Donation QR Code" className="w-full h-full object-contain" />
+              <img src={qrCodeDataUrl} alt="Payment QR Code" className="w-full h-full object-contain" />
             ) : (
               <div className="text-gray-400">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
                 <p className="text-sm">
-                  {isGenerating ? 'Generating QR Code...' : 'Loading...'}
+                  {isGenerating ? 'Generating Payment QR Code...' : 'Loading...'}
                 </p>
               </div>
             )}
@@ -163,17 +189,38 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
           <div className="space-y-2 text-left">
             <p><strong>Donation ID:</strong> {donationId || 'Generating...'}</p>
             <p><strong>Category:</strong> {category}</p>
-            <p><strong>Amount:</strong> {type === 'monetary' ? `$${amount}` : amount}</p>
+            <p><strong>Amount:</strong> {amount}</p>
             {peopleCount && <p><strong>Feeds:</strong> {peopleCount} people</p>}
             <p><strong>Type:</strong> {type}</p>
-            <p><strong>Contact:</strong> {phoneNumber}</p>
+            <p><strong>Recipient:</strong> {phoneNumber}</p>
           </div>
 
-          {!user && (
+          {type === 'monetary' && amount.includes('₹') && (
+            <div className="bg-green-50 p-4 rounded-lg text-left">
+              <div className="flex items-center gap-2 mb-2">
+                <Phone className="w-4 h-4 text-green-600" />
+                <p className="font-medium text-green-800">UPI Payment Ready</p>
+              </div>
+              <p className="text-green-700 text-sm">
+                This QR code will open your UPI app (PayTM, GPay, PhonePe, etc.) and pre-fill the payment details.
+              </p>
+              <p className="text-green-700 text-sm mt-1">
+                Simply scan with any UPI-enabled app to send ₹{amount.replace(/[^\d.]/g, '')} directly.
+              </p>
+            </div>
+          )}
+
+          {type === 'monetary' && amount.includes('$') && (
             <div className="bg-blue-50 p-4 rounded-lg text-left">
-              <p className="text-blue-800 font-medium mb-2">💡 Sign in to save your donation history</p>
+              <div className="flex items-center gap-2 mb-2">
+                <Phone className="w-4 h-4 text-blue-600" />
+                <p className="font-medium text-blue-800">Payment Link Ready</p>
+              </div>
               <p className="text-blue-700 text-sm">
-                Your QR code is ready to use, but signing in will save this donation to your history for future reference.
+                This QR code contains payment information. Scanning will direct to a payment platform.
+              </p>
+              <p className="text-blue-700 text-sm mt-1">
+                Amount: ${amount.replace(/[^\d.]/g, '')} to {phoneNumber}
               </p>
             </div>
           )}
@@ -182,13 +229,22 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
             <div className="bg-blue-50 p-4 rounded-lg text-left">
               <div className="flex items-center gap-2 mb-2">
                 <Phone className="w-4 h-4 text-blue-600" />
-                <p className="font-medium text-blue-800">Our advisor will contact you</p>
+                <p className="font-medium text-blue-800">Contact Information</p>
               </div>
               <p className="text-blue-700 text-sm">
-                You will receive a call within 24 hours to arrange pickup or drop-off of your donation items.
+                Scanning this QR code will provide contact details for item donation coordination.
               </p>
               <p className="text-blue-700 text-sm mt-1">
-                <strong>Emergency contact:</strong> +1 (555) 123-HELP
+                Our team will contact you at {phoneNumber} within 24 hours for pickup/delivery arrangements.
+              </p>
+            </div>
+          )}
+
+          {!user && (
+            <div className="bg-blue-50 p-4 rounded-lg text-left">
+              <p className="text-blue-800 font-medium mb-2">💡 Sign in to save your donation history</p>
+              <p className="text-blue-700 text-sm">
+                Your QR code is ready to use, but signing in will save this donation to your history for future reference.
               </p>
             </div>
           )}
@@ -200,7 +256,7 @@ const QRCodeGenerator = ({ category, amount, peopleCount, type, phoneNumber, onB
               className="w-full bg-green-600 hover:bg-green-700"
             >
               <Download className="w-4 h-4 mr-2" />
-              Download QR Code
+              Download Payment QR Code
             </Button>
             <Button variant="outline" onClick={onBack} className="w-full">
               <ArrowLeft className="w-4 h-4 mr-2" />
