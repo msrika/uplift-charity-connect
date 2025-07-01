@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Heart, Users, User } from 'lucide-react';
+import { Heart, Users, User, DollarSign, IndianRupee } from 'lucide-react';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import Footer from '@/components/Footer';
 
@@ -82,6 +82,7 @@ const Donate = () => {
   const [itemQuantity, setItemQuantity] = useState('');
   const [showQR, setShowQR] = useState(false);
   const [donationType, setDonationType] = useState('monetary');
+  const [currency, setCurrency] = useState('USD');
 
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -99,6 +100,14 @@ const Donate = () => {
   };
 
   const selectedCategoryData = donationCategories.find(cat => cat.id === selectedCategory);
+
+  // Currency preset amounts
+  const presetAmounts = currency === 'USD' 
+    ? [25, 50, 100, 250]
+    : [2000, 4000, 8000, 20000]; // INR equivalents
+
+  const currencySymbol = currency === 'USD' ? '$' : '₹';
+  const CurrencyIcon = currency === 'USD' ? DollarSign : IndianRupee;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-teal-50">
@@ -179,6 +188,29 @@ const Donate = () => {
                     </RadioGroup>
                   </div>
 
+                  {/* Currency Selection - Only show for monetary donations */}
+                  {donationType === 'monetary' && (
+                    <div>
+                      <Label className="text-base font-semibold">Currency</Label>
+                      <RadioGroup value={currency} onValueChange={setCurrency} className="mt-2">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="USD" id="usd" />
+                          <Label htmlFor="usd" className="flex items-center gap-2">
+                            <DollarSign className="w-4 h-4" />
+                            US Dollar (USD)
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="INR" id="inr" />
+                          <Label htmlFor="inr" className="flex items-center gap-2">
+                            <IndianRupee className="w-4 h-4" />
+                            Indian Rupee (INR)
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  )}
+
                   {/* Phone Number */}
                   <div>
                     <Label htmlFor="phone" className="text-base font-semibold">Contact Phone Number *</Label>
@@ -194,24 +226,29 @@ const Donate = () => {
 
                   {donationType === 'monetary' && (
                     <div>
-                      <Label htmlFor="amount" className="text-base font-semibold">Donation Amount ($)</Label>
+                      <Label htmlFor="amount" className="text-base font-semibold flex items-center gap-2">
+                        <CurrencyIcon className="w-4 h-4" />
+                        Donation Amount ({currencySymbol})
+                      </Label>
                       <Input
                         id="amount"
                         type="number"
-                        placeholder="Enter amount"
+                        placeholder={`Enter amount in ${currency}`}
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
                         className="mt-2"
                       />
-                      <div className="flex gap-2 mt-3">
-                        {[25, 50, 100, 250].map((preset) => (
+                      <div className="flex gap-2 mt-3 flex-wrap">
+                        {presetAmounts.map((preset) => (
                           <Button
                             key={preset}
                             variant="outline"
                             size="sm"
                             onClick={() => setAmount(preset.toString())}
+                            className="flex items-center gap-1"
                           >
-                            ${preset}
+                            <CurrencyIcon className="w-3 h-3" />
+                            {preset.toLocaleString()}
                           </Button>
                         ))}
                       </div>
@@ -272,7 +309,7 @@ const Donate = () => {
         ) : (
           <QRCodeGenerator 
             category={`${selectedCategory} - ${selectedSubcategory}`}
-            amount={donationType === 'monetary' ? amount : itemQuantity}
+            amount={donationType === 'monetary' ? `${currencySymbol}${amount} ${currency}` : itemQuantity}
             peopleCount={donationType === 'items' ? peopleCount : undefined}
             type={donationType}
             phoneNumber={phoneNumber}
